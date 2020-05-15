@@ -4,11 +4,15 @@ url = "https://pypi.org/simple"
 verify_ssl = true
 
 [dev-packages]
+isort = "*"
+black = "*"
 
 [packages]
 azure-keyvault-secrets = "*"
 azure-identity = "*"
 pyyaml = "*"
+kubernetes = "*"
+pylogrus = "*"
 
 [requires]
 python_version = "3.8"

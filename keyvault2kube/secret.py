@@ -2,17 +2,20 @@ import base64
 import datetime
 import json
 import os
-from typing import Dict, Any, Optional
+from typing import Dict, Any, Optional, Generator, Tuple
 
 import yaml
+from kubernetes.client import V1Secret, V1ObjectMeta
 
 
 class Secret(object):
-    ANNOTATION_LAST_UPDATED = 'github.com/terrycain/keyvault2kube/secret/{}/last_updated'
-    ANNOTATION_VAULT = 'github.com/terrycain/keyvault2kube/vault'
+    ANNOTATION_LAST_UPDATED = 'keyvault2kube.terrycain.github.com/secret.{}.last_updated'
+    ANNOTATION_VAULT = 'keyvault2kube.terrycain.github.com/secret.{}.vault'
+    ANNOTATION_VERSION = 'keyvault2kube.terrycain.github.com/secret.{}.version'
 
     def __init__(self,
                  secret: str,
+                 secret_version: str,
                  key_vault_secret_name: str,
                  k8s_secret_name: str,
                  key_vault: str,
@@ -35,13 +38,14 @@ class Secret(object):
 
         self.annotations = {
             self.ANNOTATION_LAST_UPDATED.format(key_vault_secret_name): last_updated.isoformat(),
-            self.ANNOTATION_VAULT: key_vault
+            self.ANNOTATION_VERSION.format(key_vault_secret_name): secret_version,
+            self.ANNOTATION_VAULT.format(key_vault_secret_name): key_vault
         }
 
         self.k8s_secret_key = k8s_secret_key
         self.k8s_secret_name = k8s_secret_name
         self.k8s_namespaces = k8s_namespaces or 'default'
-        self.k8s_namespaces = [x.strip() for x in self.k8s_namespaces.split(',')]
+        self.k8s_namespaces = [x.strip() for x in set(self.k8s_namespaces.split(','))]
         self.k8s_type = k8s_type or 'Opaque'
 
         if convert:
@@ -118,3 +122,16 @@ class Secret(object):
             yml['metadata']['namespace'] = ns
             result[ns] = yaml.safe_dump(yml).rstrip('\n')
         return result
+
+    def to_kubesecret(self) -> Generator[Tuple[str, V1Secret], None, None]:
+        for ns in self.k8s_namespaces:
+            yield ns, V1Secret(
+                api_version='v1',
+                data=self.data,
+                kind='Secret',
+                type=self.k8s_type,
+                metadata=V1ObjectMeta(
+                    annotations=self.annotations,
+                    name=self.k8s_secret_name
+                )
+            )
