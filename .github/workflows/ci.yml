@@ -23,13 +23,12 @@ jobs:
       - name: Install Poetry
         run: |
           pip install poetry
-          poetry config virtualenvs.create false
       - name: Install dev dependencies
         run: poetry install
       - name: Run Black
-        run: black --check keyvault2kube
+        run: poetry run black --check keyvault2kube
       - name: Run isort
-        run: isort -c
+        run: poetry run isort -c
       - name: Validated Kuberentes deployment
         uses: instrumenta/kubeval-action@master
         with:

@@ -1,7 +1,7 @@
-![CI status](https://github.com/terrycain/keyvault2kube/workflows/CI/badge.svg "CI status")
-![Docker Pulls](https://img.shields.io/docker/pulls/terrycain/keyvault2kube)
-![Docker Image Size (latest by date)](https://img.shields.io/docker/image-size/terrycain/keyvault2kube?sort=date)
-![Docker Image Version (latest semver)](https://img.shields.io/docker/v/terrycain/keyvault2kube?sort=semver)
+[![CI status](https://github.com/terrycain/keyvault2kube/workflows/CI/badge.svg)](https://github.com/terrycain/keyvault2kube/actions?query=workflow%3ACI)
+[![Docker Pulls](https://img.shields.io/docker/pulls/terrycain/keyvault2kube)](https://hub.docker.com/repository/docker/terrycain/keyvault2kube)
+[![Docker Image Size (latest by date)](https://img.shields.io/docker/image-size/terrycain/keyvault2kube?sort=date)](https://hub.docker.com/repository/docker/terrycain/keyvault2kube)
+[![Docker Image Version (latest semver)](https://img.shields.io/docker/v/terrycain/keyvault2kube?sort=semver)](https://hub.docker.com/repository/docker/terrycain/keyvault2kube)
 
 # Copies secrets from KeyVault into Kubernetes
 
