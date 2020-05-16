@@ -3,12 +3,54 @@
 ## Deployment
 
 Ideally the container should get KeyVault credentials from a managed service identity using something like the 
-`aad-pod-identity` project but it will also respect the env vars of AZURE_CLIENT_ID, AZURE_CLIENT_SECRET and AZURE_TENANT_ID.
+`aad-pod-identity` project but it will also respect the env vars of `AZURE_CLIENT_ID`, `AZURE_CLIENT_SECRET` and `AZURE_TENANT_ID`.
 
-To configure which KeyVaults to scan, an env var of KEY_VAULT_URLS with a comma separated list of Key Vault URL's is all thats needed. 
+To configure which KeyVaults to scan, an env var of `KEY_VAULT_URLS` with a comma separated list of Key Vault URL's is all thats needed. 
 
+Deployment:
+```
+kubectl apply -f https://TODO
+```
+
+Example deployment.yaml mounting a config map to be used as a template (this example is missing the RBAC roles so check `deployment.yaml` for those):
 ```yaml
-Deployment YAML: todo
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: keyvault2kube
+  namespace: kube-system
+  labels:
+    app: keyvault2kube
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: keyvault2kube
+  template:
+    metadata:
+      labels:
+        app: keyvault2kube
+    spec:
+      containers:
+        - name: keyvault2kube
+          image: terrycain/keyvault2kube:latest
+          volumeMounts:
+            - name: config-volume
+              mountPath: /app/templates/
+      volumes:
+        - name: config-volume
+          configMap:
+            name: keyvault2kube-template
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: keyvault2kube-template
+  namespace: kube-system
+data:
+  template1.yaml: |
+    test1: "hello {data}"
+    test2: "{data2} world"
 ```
 
 ## Secret Configuration
@@ -32,7 +74,8 @@ If `k8s_convert` is added to a secret with a value of `dockerconfigjson`, a cont
 json value with the fields "registry", "email", "username", "password" are provided then it'll convert that json 
 into the dockerconfigjson format and secret type.
 
-If `k8s_convert` has a value like `file:/app/template1.yaml` (must end with .yaml), the secret is a json document and has a content type of `application/json`, then
+-- TODO will change this to use Jinja2 instead before V1
+If `k8s_convert` has a value like `file:/app/templates/template1.yaml` (must end with .yaml), the secret is a json document and has a content type of `application/json`, then
 the yaml file will be read in, python's .format(**json_document) will be templated over the yaml document and then loaded 
 and used as the secret data. E.g. a secret value of `{"data": "world", "data2": "hello"}`
 ```yaml
