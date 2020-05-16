@@ -1,3 +1,6 @@
+![CI status](https://github.com/terrycain/keyvault2kube/workflows/CI/badge.svg "CI status")
+
+
 # Copies secrets from KeyVault into Kubernetes
 
 ## Deployment
