@@ -30,6 +30,10 @@ jobs:
         run: black --check keyvault2kube
       - name: Run isort
         run: isort -c
+      - name: Validated Kuberentes deployment
+        uses: instrumenta/kubeval-action@master
+        with:
+          files: deployment.yaml
   release:
     name: Release
     runs-on: ubuntu-latest

@@ -9,7 +9,7 @@ To configure which KeyVaults to scan, an env var of `KEY_VAULT_URLS` with a comm
 
 Deployment:
 ```
-kubectl apply -f https://TODO
+kubectl apply -f https://raw.githubusercontent.com/terrycain/keyvault2kube/master/deployment.yaml
 ```
 
 Example deployment.yaml mounting a config map to be used as a template (this example is missing the RBAC roles so check `deployment.yaml` for those):
