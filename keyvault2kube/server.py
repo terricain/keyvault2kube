@@ -7,7 +7,7 @@ import sys
 import pylogrus
 
 from keyvault2kube.keyvault import KeyVaultManager
-from keyvault2kube.kube import KubeSecretManager
+from keyvault2kube.kube import KubeSecretManager, load_config
 
 logging.setLoggerClass(pylogrus.PyLogrus)
 logger = logging.getLogger('keyvault2kube')
@@ -34,12 +34,19 @@ def main():
     ch.setFormatter(formatter)
     logger.addHandler(ch)
 
-    keyvault_urls = os.environ['KEY_VAULT_URLS'].split(',')
+    try:
+        keyvault_urls = os.environ['KEY_VAULT_URLS'].split(',')
+    except KeyError:
+        logger.error('Environment variable KEY_VAULT_URLS is required')
+        sys.exit(1)
+        
     keyvault_managers = []
     for keyvault_url in keyvault_urls:
         logger.info(f'Creating KeyVault manager for {keyvault_url}')
         keyvault_managers.append(KeyVaultManager(keyvault_url))
 
+    logger.info('Loading Kubernetes config')
+    load_config()
     logger.info('Loading Kubernetes manager')
     kube = KubeSecretManager()
 

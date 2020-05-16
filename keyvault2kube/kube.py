@@ -8,18 +8,26 @@ from kubernetes.config.config_exception import ConfigException
 
 from keyvault2kube.secret import Secret
 
-try:
-    config.load_incluster_config()
-except ConfigException:
-    config.load_kube_config()
-
 
 logging.setLoggerClass(pylogrus.PyLogrus)
+logger = cast(pylogrus.PyLogrus, logging.getLogger('keyvault2kube.kube'))
+
+def load_config():
+    try:
+        logger.info('Looking for Kubernetes cluster config')
+        config.load_incluster_config()
+    except ConfigException:
+        logger.info('Looking for Kubernetes ~/.kube/config')
+        try:
+            config.load_kube_config()
+        except ConfigException as err:
+            logger.exception('Failed to find any useable Kubernetes config', exc_info=err)
+            raise err
 
 
 class KubeSecretManager(object):
     def __init__(self):
-        self.logger = cast(pylogrus.PyLogrus, logging.getLogger('keyvault2kube.kube'))
+        self.logger =  logger
         self.client = client.CoreV1Api()
 
     def update_secrets(self, secrets: List[Secret]) -> None:
