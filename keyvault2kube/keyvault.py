@@ -1,5 +1,5 @@
 import logging
-from typing import cast, List, Dict
+from typing import Dict, List, cast
 
 import pylogrus
 from azure.identity import DefaultAzureCredential
@@ -13,7 +13,9 @@ logging.setLoggerClass(pylogrus.PyLogrus)
 class KeyVaultManager(object):
     def __init__(self, vault_url: str) -> None:
         self.url = vault_url
-        self.logger = cast(pylogrus.PyLogrus, logging.getLogger('keyvault2kube.keyvault')).withFields({'vault': vault_url})
+        self.logger = cast(pylogrus.PyLogrus, logging.getLogger("keyvault2kube.keyvault")).withFields(
+            {"vault": vault_url}
+        )
         credential = cast("TokenCredential", DefaultAzureCredential())
         self._secret_client = SecretClient(vault_url=vault_url, credential=credential)
 
@@ -24,13 +26,15 @@ class KeyVaultManager(object):
             for secret in self._secret_client.list_properties_of_secrets():
                 if not secret.tags:
                     continue
-                if 'k8s_secret_name' not in secret.tags:
+                if "k8s_secret_name" not in secret.tags:
                     continue
 
                 try:
                     secret_value_obj = self._secret_client.get_secret(secret.name)
                 except Exception as err:
-                    self.logger.withFields({'secret': secret.name}).exception('Failed to get secret from KeyVault', exc_info=err)
+                    self.logger.withFields({"secret": secret.name}).exception(
+                        "Failed to get secret from KeyVault", exc_info=err
+                    )
                     continue
 
                 secret = Secret(
@@ -38,13 +42,13 @@ class KeyVaultManager(object):
                     secret_version=secret_value_obj.properties.version,
                     key_vault_secret_name=secret.name,
                     key_vault=secret.vault_url,
-                    k8s_secret_name=secret.tags['k8s_secret_name'],
+                    k8s_secret_name=secret.tags["k8s_secret_name"],
                     last_updated=secret.updated_on,
                     content_type=secret.content_type,
-                    k8s_secret_key=secret.tags.get('k8s_secret_key'),
-                    k8s_namespaces=secret.tags.get('k8s_namespaces'),
-                    k8s_type=secret.tags.get('k8s_type'),
-                    convert=secret.tags.get('k8s_convert')
+                    k8s_secret_key=secret.tags.get("k8s_secret_key"),
+                    k8s_namespaces=secret.tags.get("k8s_namespaces"),
+                    k8s_type=secret.tags.get("k8s_type"),
+                    convert=secret.tags.get("k8s_convert"),
                 )
 
                 # Simple joining of secrets into 1 kube secret if needed
@@ -53,6 +57,6 @@ class KeyVaultManager(object):
                 else:
                     secrets[secret.k8s_secret_name] = secret
         except Exception as err:
-            self.logger.exception('Failed to list secrets from KeyVault', exc_info=err)
+            self.logger.exception("Failed to list secrets from KeyVault", exc_info=err)
 
         return list(secrets.values())

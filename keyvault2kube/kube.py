@@ -1,5 +1,5 @@
 import logging
-from typing import cast, List, Optional
+from typing import List, Optional, cast
 
 import pylogrus
 from kubernetes import client, config
@@ -8,26 +8,26 @@ from kubernetes.config.config_exception import ConfigException
 
 from keyvault2kube.secret import Secret
 
-
 logging.setLoggerClass(pylogrus.PyLogrus)
-logger = cast(pylogrus.PyLogrus, logging.getLogger('keyvault2kube.kube'))
+logger = cast(pylogrus.PyLogrus, logging.getLogger("keyvault2kube.kube"))
+
 
 def load_config():
     try:
-        logger.info('Looking for Kubernetes cluster config')
+        logger.info("Looking for Kubernetes cluster config")
         config.load_incluster_config()
     except ConfigException:
-        logger.info('Looking for Kubernetes ~/.kube/config')
+        logger.info("Looking for Kubernetes ~/.kube/config")
         try:
             config.load_kube_config()
         except ConfigException as err:
-            logger.exception('Failed to find any useable Kubernetes config', exc_info=err)
+            logger.exception("Failed to find any useable Kubernetes config", exc_info=err)
             raise err
 
 
 class KubeSecretManager(object):
     def __init__(self):
-        self.logger =  logger
+        self.logger = logger
         self.client = client.CoreV1Api()
 
     def update_secrets(self, secrets: List[Secret]) -> None:
@@ -39,21 +39,22 @@ class KubeSecretManager(object):
                 try:
                     kube_secret = self.client.read_namespaced_secret(name=secret_obj.metadata.name, namespace=ns)
                 except ApiException as err:
-                    if err.reason == 'Not Found':
+                    if err.reason == "Not Found":
                         pass
                     else:
-                        self.logger.withFields({'secret': secret_obj.metadata.name}).exception('Failed to read secret', exc_info=err)
+                        self.logger.withFields({"secret": secret_obj.metadata.name}).exception(
+                            "Failed to read secret", exc_info=err
+                        )
                         continue
 
                 if kube_secret is None:
                     # Create secret
                     try:
-                        self.client.create_namespaced_secret(
-                            namespace=ns,
-                            body=secret_obj
-                        )
+                        self.client.create_namespaced_secret(namespace=ns, body=secret_obj)
                     except Exception as err:
-                        self.logger.withFields({'secret': secret_obj.metadata.name}).exception('Failed to create secret', exc_info=err)
+                        self.logger.withFields({"secret": secret_obj.metadata.name}).exception(
+                            "Failed to create secret", exc_info=err
+                        )
                         continue
                 else:
                     # Compare secret
@@ -61,7 +62,7 @@ class KubeSecretManager(object):
                     changed = False
 
                     for key, value in secret.annotations.items():
-                        if not key.endswith('version'):
+                        if not key.endswith("version"):
                             continue
 
                         if kube_secret_annotations.get(key) != value:
@@ -71,10 +72,10 @@ class KubeSecretManager(object):
                     if changed:
                         try:
                             self.client.patch_namespaced_secret(
-                                name=secret.k8s_secret_name,
-                                namespace=ns,
-                                body=secret_obj.to_dict()
+                                name=secret.k8s_secret_name, namespace=ns, body=secret_obj.to_dict()
                             )
                         except Exception as err:
-                            self.logger.withFields({'secret': secret_obj.metadata.name}).exception('Failed to patch secret', exc_info=err)
+                            self.logger.withFields({"secret": secret_obj.metadata.name}).exception(
+                                "Failed to patch secret", exc_info=err
+                            )
                             continue

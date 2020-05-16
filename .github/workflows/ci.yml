@@ -1,0 +1,61 @@
+name: CI
+
+on:
+  push:
+    branches:
+      - master
+    tags:
+      - v*
+
+jobs:
+  test:
+    # Combining linting into testing to save recreating workspace
+    name: Test
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@master
+      - name: Install Python 3.8
+        uses: actions/setup-python@v2
+        with:
+          python-version: '3.8'
+          architecture: 'x64'
+      - name: Install Poetry
+        run: |
+          pip install poetry
+          poetry config virtualenvs.create false
+      - name: Install dev dependencies
+        run: poetry install
+      - name: Run Black
+        run: black --check keyvault2kube
+      - name: Run isort
+        run: isort -c
+  release:
+    name: Release
+    runs-on: ubuntu-latest
+    needs: test
+    if: startsWith(github.ref, 'refs/tags/v')
+    steps:
+      - name: Check out code into the Go module directory
+        uses: actions/checkout@v2
+      - name: Get the version
+        id: get_version
+        run: echo ::set-output name=version::${GITHUB_REF/refs\/tags\//}
+      - name: Login to docker hub
+        uses: actions-hub/docker/login@master
+        env:
+          DOCKER_USERNAME: ${{ secrets.DOCKER_USERNAME }}
+          DOCKER_PASSWORD: ${{ secrets.DOCKER_PASSWORD }}
+      - name: Build :latest
+        run: |
+          docker build -t terrycain/keyvault2kube:latest .
+          docker tag terrycain/keyvault2kube:latest terrycain/terrafmt:${{ steps.get_version.outputs.version }}
+      - name: Push to docker hub :latest
+        uses: actions-hub/docker@master
+        with:
+          args: push terrycain/keyvault2kube:latest
+
+      - name: Push to docker hub :${{ steps.get_version.outputs.version }}
+        uses: actions-hub/docker@master
+        with:
+          args: push terrycain/keyvault2kube:${{ steps.get_version.outputs.version }}
