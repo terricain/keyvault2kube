@@ -51,6 +51,7 @@ class KubeSecretManager(object):
                     # Create secret
                     try:
                         self.client.create_namespaced_secret(namespace=ns, body=secret_obj)
+                        self.logger.info(f'Created secret {secret_obj.metadata.name} in namespace {ns}')
                     except Exception as err:
                         self.logger.withFields({"secret": secret_obj.metadata.name}).exception(
                             "Failed to create secret", exc_info=err
@@ -74,8 +75,11 @@ class KubeSecretManager(object):
                             self.client.patch_namespaced_secret(
                                 name=secret.k8s_secret_name, namespace=ns, body=secret_obj.to_dict()
                             )
+                            self.logger.info(f'Updated secret {secret_obj.metadata.name} in namespace {ns}')
                         except Exception as err:
                             self.logger.withFields({"secret": secret_obj.metadata.name}).exception(
                                 "Failed to patch secret", exc_info=err
                             )
                             continue
+                    else:
+                        self.logger.info(f'Created secret {secret_obj.metadata.name} in namespace {ns}')
