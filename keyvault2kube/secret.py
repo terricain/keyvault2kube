@@ -88,10 +88,7 @@ class Secret(object):
 
         # Ensure all values are base64'd
         for key in self.data:
-            try:
-                base64.b64decode(self.data[key])
-            except Exception:
-                self.data[key] = base64.b64encode(self.data[key].encode()).decode()
+            self.data[key] = base64.b64encode(self.data[key].encode()).decode()
 
     @staticmethod
     def secret_from_content_type(secret: str, content_type: str) -> Dict[str, Any]:
