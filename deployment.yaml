@@ -11,7 +11,7 @@ metadata:
 rules:
   - apiGroups: [""]
     resources: ["secrets"]
-    verbs: ["get", "update"]
+    verbs: ["get", "update", "create", "patch"]
 ---
 apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRoleBinding
@@ -33,6 +33,7 @@ metadata:
   namespace: kube-system
   labels:
     app: keyvault2kube
+    aadpodidbinding: keyvault2kube
 spec:
   replicas: 1
   selector:
@@ -42,8 +43,29 @@ spec:
     metadata:
       labels:
         app: keyvault2kube
+        aadpodidbinding: keyvault2kube
     spec:
       serviceAccountName: keyvault2kube
       containers:
         - name: keyvault2kube
           image: terrycain/keyvault2kube:latest
+          env:
+          - name: KEY_VAULT_URLS
+            value: KEYVAULTURL
+---
+apiVersion: "aadpodidentity.k8s.io/v1"
+kind: AzureIdentity
+metadata:
+  name: keyvault2kube
+spec:
+  type: 0
+  resourceID: RESOURCEID
+  clientID: CLIENTID
+---
+apiVersion: "aadpodidentity.k8s.io/v1"
+kind: AzureIdentityBinding
+metadata:
+  name: keyvault2kube-identity-binding
+spec:
+  azureIdentity: keyvault2kube
+  selector: keyvault2kube

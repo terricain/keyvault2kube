@@ -13,9 +13,7 @@ Ideally the container should get KeyVault credentials from a managed service ide
 To configure which KeyVaults to scan, an env var of `KEY_VAULT_URLS` with a comma separated list of Key Vault URL's is all thats needed. 
 
 Deployment:
-```
-kubectl apply -f https://raw.githubusercontent.com/terrycain/keyvault2kube/master/deployment.yaml
-```
+Download `https://raw.githubusercontent.com/terrycain/keyvault2kube/master/deployment.yaml`, replace the keyvault env var, aad-pod-identity resource and client id's, then apply.
 
 Example deployment.yaml mounting a config map to be used as a template (this example is missing the RBAC roles so check `deployment.yaml` for those):
 ```yaml
