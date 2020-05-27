@@ -59,11 +59,13 @@ class Secret(object):
                 auth = self.data["username"] + ":" + self.data["password"]
                 data = json.dumps(
                     {
-                        self.data["registry"]: {
-                            "username": self.data["username"],
-                            "password": self.data["password"],
-                            "email": self.data["email"],
-                            "auth": base64.b64encode(auth.encode()).decode(),
+                        "auths": {
+                            self.data["registry"]: {
+                                "username": self.data["username"],
+                                "password": self.data["password"],
+                                "email": self.data["email"],
+                                "auth": base64.b64encode(auth.encode()).decode(),
+                            }
                         }
                     }
                 )
