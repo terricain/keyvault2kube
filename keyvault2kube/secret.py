@@ -57,18 +57,16 @@ class Secret(object):
                 ):
                     raise ValueError("Fields missing for dockerconfigjson conversion")
                 auth = self.data["username"] + ":" + self.data["password"]
-                data = base64.b64encode(
-                    json.dumps(
-                        {
-                            self.data["registry"]: {
-                                "username": self.data["username"],
-                                "password": self.data["password"],
-                                "email": self.data["email"],
-                                "auth": base64.b64encode(auth.encode()).decode(),
-                            }
+                data = json.dumps(
+                    {
+                        self.data["registry"]: {
+                            "username": self.data["username"],
+                            "password": self.data["password"],
+                            "email": self.data["email"],
+                            "auth": base64.b64encode(auth.encode()).decode(),
                         }
-                    ).encode()
-                ).decode()
+                    }
+                )
                 self.data.clear()
                 self.data[".dockerconfigjson"] = data
                 self.k8s_type = "kubernetes.io/dockerconfigjson"
