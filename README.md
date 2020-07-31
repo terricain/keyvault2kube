@@ -52,8 +52,8 @@ metadata:
   namespace: kube-system
 data:
   template1.yaml: |
-    test1: "hello {data}"
-    test2: "{data2} world"
+    test1: "hello {{data}}"
+    test2: "{{data2}} world"
 ```
 
 ## Secret Configuration
@@ -77,13 +77,12 @@ If `k8s_convert` is added to a secret with a value of `dockerconfigjson`, a cont
 json value with the fields "registry", "email", "username", "password" are provided then it'll convert that json 
 into the dockerconfigjson format and secret type.
 
--- TODO will change this to use Jinja2 instead before V1
-If `k8s_convert` has a value like `file:/app/templates/template1.yaml` (must end with .yaml), the secret is a json document and has a content type of `application/json`, then
-the yaml file will be read in, python's .format(**json_document) will be templated over the yaml document and then loaded 
+If `k8s_convert` has a value like `file:/app/templates/template1.yaml` (must end with .yaml), the secret value is a json document and has a content type of `application/json`, then
+the yaml file will be read in, will be templated with Jinja2 which should result in valid YAML, and then the yaml document is loaded 
 and used as the secret data. E.g. a secret value of `{"data": "world", "data2": "hello"}`
 ```yaml
-test1: "hello {data}"
-test2: "{data2} world"
+test1: "hello {{data}}"
+test2: "{{data2}} world"
 ```
 would result in:
 ```yaml

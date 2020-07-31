@@ -4,6 +4,7 @@ import json
 import os
 from typing import Any, Dict, Generator, Optional, Tuple
 
+import jinja2
 import yaml
 from kubernetes.client import V1ObjectMeta, V1Secret
 
@@ -77,11 +78,12 @@ class Secret(object):
                 if not os.path.exists(convert_file):
                     raise ValueError("Convert file does not exist")
                 with open(convert_file, "r") as fp:
-                    convert_data = fp.read()
+                    template_src = fp.read()
 
-                convert_data = convert_data.format(**self.data)
+                template = jinja2.Template(template_src)
+                template_result = template.render(**self.data)
                 self.data.clear()
-                data = yaml.safe_load(convert_data)
+                data = yaml.safe_load(template_result)
                 self.data.update(data)
             else:
                 raise ValueError(f"Unknown convert value {convert}")
