@@ -10,4 +10,6 @@ COPY --from=0 /requirements.txt /app/requirements.txt
 RUN pip install --require-hashes -r /app/requirements.txt
 COPY keyvault2kube /app/keyvault2kube
 
+ENV PYTHONUNBUFFERED=1
+
 CMD ["python", "-m", "keyvault2kube.server"]
