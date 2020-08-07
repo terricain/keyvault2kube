@@ -1,6 +1,8 @@
 import logging
+import sys
 from typing import Dict, List, cast
 
+import azure.core.exceptions
 import pylogrus
 from azure.identity import DefaultAzureCredential
 from azure.keyvault.secrets import SecretClient
@@ -56,6 +58,10 @@ class KeyVaultManager(object):
                     secrets[secret.k8s_secret_name].add_key(secret)
                 else:
                     secrets[secret.k8s_secret_name] = secret
+        except azure.core.exceptions.ClientAuthenticationError as err:
+            self.logger.exception("No credentials available", exc_info=err)
+            sys.exit(1)
+
         except Exception as err:
             self.logger.exception("Failed to list secrets from KeyVault", exc_info=err)
 
