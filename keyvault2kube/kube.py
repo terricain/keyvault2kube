@@ -54,7 +54,7 @@ class KubeSecretManager(object):
                         self.logger.info(f"Created secret {secret_obj.metadata.name} in namespace {ns}")
                     except ApiException as err:
                         if err.reason == "Not Found":
-                            self.logger.withFields({"secret": secret_obj.metadata.name, 'namespace': ns}).warning(
+                            self.logger.withFields({"secret": secret_obj.metadata.name, "namespace": ns}).warning(
                                 f"Failed to create secret, namespace {ns} doesnt exist"
                             )
                         else:

@@ -6,7 +6,7 @@ from typing import Any, Dict, Generator, Optional, Tuple
 
 import jinja2
 import yaml
-from kubernetes.client import V1ObjectMeta, V1Secret, CoreV1Api
+from kubernetes.client import CoreV1Api, V1ObjectMeta, V1Secret
 
 
 class Secret(object):
@@ -139,7 +139,7 @@ class Secret(object):
         all_namespaces = [ns.metadata.name for ns in client.list_namespace().items]
 
         # Deal with "all namespaces"
-        if '*' in ns_list:
+        if "*" in ns_list:
             ns_list = all_namespaces
 
         # TODO handle namespace globs
