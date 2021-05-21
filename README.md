@@ -70,6 +70,8 @@ k8s_convert     | optional | Look below
 If the `k8s_secret_name` is applied to multiple KeyVault secrets and the `k8s_namespaces` are the same and the `k8s_secret_key` tags 
 are different, the secret will be combined into 1 Kubernetes secret with multiple keys.
 
+`k8s_namespaces` can either be a list of comma separated namespaces or `*`
+
 If a content type is applied to the secret and is `application/json` or `text/x-yaml`, the value will be decoded and used as the content for 
 the secret. E.g. if a secret contained `{"a": "1", "b": "2"}` then the Kubernetes secret would have 2 keys, "a" and "b".
 

@@ -32,7 +32,7 @@ class KubeSecretManager(object):
 
     def update_secrets(self, secrets: List[Secret]) -> None:
         for secret in secrets:
-            for ns, secret_obj in secret.to_kubesecret():
+            for ns, secret_obj in secret.to_kubesecret(self.client):
                 # Get secret if it exists
 
                 kube_secret: Optional[client.V1Secret] = None
@@ -52,6 +52,16 @@ class KubeSecretManager(object):
                     try:
                         self.client.create_namespaced_secret(namespace=ns, body=secret_obj)
                         self.logger.info(f"Created secret {secret_obj.metadata.name} in namespace {ns}")
+                    except ApiException as err:
+                        if err.reason == "Not Found":
+                            self.logger.withFields({"secret": secret_obj.metadata.name, 'namespace': ns}).warning(
+                                f"Failed to create secret, namespace {ns} doesnt exist"
+                            )
+                        else:
+                            self.logger.withFields({"secret": secret_obj.metadata.name}).exception(
+                                "Failed to create secret", exc_info=err
+                            )
+                        continue
                     except Exception as err:
                         self.logger.withFields({"secret": secret_obj.metadata.name}).exception(
                             "Failed to create secret", exc_info=err

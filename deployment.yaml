@@ -9,6 +9,10 @@ kind: ClusterRole
 metadata:
   name: keyvault2kube-secret-clusterrole
 rules:
+  - apiGroups: [ "" ]
+      resources: [ "namespaces" ]
+      verbs: [ "list", "get" ]
+
   - apiGroups: [""]
     resources: ["secrets"]
     verbs: ["get", "update", "create", "patch"]

@@ -6,7 +6,7 @@ from typing import Any, Dict, Generator, Optional, Tuple
 
 import jinja2
 import yaml
-from kubernetes.client import V1ObjectMeta, V1Secret
+from kubernetes.client import V1ObjectMeta, V1Secret, CoreV1Api
 
 
 class Secret(object):
@@ -127,12 +127,22 @@ class Secret(object):
             result[ns] = yaml.safe_dump(yml).rstrip("\n")
         return result
 
-    def to_kubesecret(self) -> Generator[Tuple[str, V1Secret], None, None]:
-        for ns in self.k8s_namespaces:
-            yield ns, V1Secret(
-                api_version="v1",
-                data=self.data,
-                kind="Secret",
-                type=self.k8s_type,
-                metadata=V1ObjectMeta(annotations=self.annotations, name=self.k8s_secret_name),
-            )
+    def to_kubesecret(self, client: CoreV1Api) -> Generator[Tuple[str, V1Secret], None, None]:
+        secret = V1Secret(
+            api_version="v1",
+            data=self.data,
+            kind="Secret",
+            type=self.k8s_type,
+            metadata=V1ObjectMeta(annotations=self.annotations, name=self.k8s_secret_name),
+        )
+        ns_list = self.k8s_namespaces
+        all_namespaces = [ns.metadata.name for ns in client.list_namespace().items]
+
+        # Deal with "all namespaces"
+        if '*' in ns_list:
+            ns_list = all_namespaces
+
+        # TODO handle namespace globs
+
+        for ns in ns_list:
+            yield ns, secret
