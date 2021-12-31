@@ -1,14 +1,12 @@
-FROM python:3.8-slim
-RUN pip install poetry
+FROM python:3.10-slim
+RUN pip install poetry==1.2.0a2
 WORKDIR /app
-COPY pyproject.toml poetry.lock /app/
-RUN poetry export -f requirements.txt > /requirements.txt
+ADD . .
+RUN poetry build
 
-FROM python:3.8-slim
-WORKDIR /app
-COPY --from=0 /requirements.txt /app/requirements.txt
-RUN pip install --require-hashes -r /app/requirements.txt
-COPY keyvault2kube /app/keyvault2kube
+FROM python:3.10-slim
+COPY --from=0 /app/dist/*.whl /
+RUN pip install keyvault2kube-*.*.*-py3-none-any.whl
 
 ENV PYTHONUNBUFFERED=1
 

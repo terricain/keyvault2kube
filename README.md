@@ -7,6 +7,39 @@
 
 ## Deployment
 
+### Flux Deployment
+
+Deployment via Flux can be achieved with a kustomization similar to the below.
+
+```yaml
+bases:
+- github.com/terrycain/keyvault2kube/deploy?ref=2.1.0
+
+patches:
+  - target:
+      kind: Deployment
+    patch: |-
+      - op: replace
+        path: /spec/template/spec/containers/0/env
+        value:
+          - name: KEY_VAULT_URLS
+            value: https://bink-uksouth-dev-inf.vault.azure.net/
+  - target:
+      kind: AzureIdentity
+    patch: |-
+      - op: replace
+        path: /spec/resourceID
+        value: /subscriptions/abc123ab-abc1-def2-ghi3-abc123ab1231/resourceGroups/foogroup/providers/Microsoft.ManagedIdentity/userAssignedIdentities/bar
+  - target:
+      kind: AzureIdentity
+    patch: |-
+      - op: replace
+        path: /spec/clientID
+        value: a4e207e6-9d04-4a47-937d-a2bc32a18c00
+```
+
+### Manual Deployment
+
 Ideally the container should get KeyVault credentials from a managed service identity using something like the 
 `aad-pod-identity` project but it will also respect the env vars of `AZURE_CLIENT_ID`, `AZURE_CLIENT_SECRET` and `AZURE_TENANT_ID`.
 

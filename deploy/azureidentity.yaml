@@ -1,0 +1,21 @@
+---
+apiVersion: aadpodidentity.k8s.io/v1
+kind: AzureIdentity
+metadata:
+  name: keyvault2kube
+  namespace: kube-system
+  annotations:
+    aadpodidentity.k8s.io/Behavior: namespaced
+spec:
+  type: 0
+  resourceID: /subscriptions/00000000-0000-0000-0000-00000000/resourceGroups/foo/providers/Microsoft.ManagedIdentity/userAssignedIdentities/bar
+  clientID: 00000000-0000-0000-0000-00000000
+---
+apiVersion: aadpodidentity.k8s.io/v1
+kind: AzureIdentityBinding
+metadata:
+  name: keyvault2kube
+  namespace: kube-system
+spec:
+  azureIdentity: keyvault2kube
+  selector: keyvault2kube

@@ -1,0 +1,13 @@
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: keyvault2kube
+subjects:
+  - kind: ServiceAccount
+    name: keyvault2kube
+    namespace: kube-system
+roleRef:
+  kind: ClusterRole
+  name: keyvault2kube
+  apiGroup: rbac.authorization.k8s.io

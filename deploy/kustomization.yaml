@@ -1,0 +1,9 @@
+---
+resources:
+  - azureidentity.yaml
+  - clusterrole.yaml
+  - clusterrolebinding.yaml
+  - deploy.yaml
+  - serviceaccount.yaml
+
+namespace: kube-system
