@@ -139,8 +139,11 @@ class Secret(object):
         all_namespaces = [ns.metadata.name for ns in client.list_namespace().items]
 
         # Deal with "all namespaces"
-        if "*" in ns_list:
-            ns_list = all_namespaces
+        try:
+            if os.environ['ALL_NAMESPACES'] or "*" in ns_list:
+                ns_list = all_namespaces
+        except KeyError:
+            pass
 
         # TODO handle namespace globs
 

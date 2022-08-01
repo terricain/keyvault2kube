@@ -34,7 +34,6 @@ class KubeSecretManager(object):
         for secret in secrets:
             for ns, secret_obj in secret.to_kubesecret(self.client):
                 # Get secret if it exists
-
                 kube_secret: Optional[client.V1Secret] = None
                 try:
                     kube_secret = self.client.read_namespaced_secret(name=secret_obj.metadata.name, namespace=ns)
