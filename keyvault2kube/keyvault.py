@@ -6,6 +6,7 @@ import azure.core.exceptions
 import pylogrus
 from azure.identity import DefaultAzureCredential
 from azure.keyvault.secrets import SecretClient
+from kubernetes import client, config
 
 from keyvault2kube.secret import Secret
 
