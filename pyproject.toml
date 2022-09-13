@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "keyvault2kube"
-version = "2.0.0"
+version = "0.0.0"
 description = "Copies secrets from Azure KeyVault to Kubernetes"
 authors = ["Terry Cain <terry@terrys-home.co.uk>", "Chris Pressland <mail@cpressland.io>"]
 license = "Apache-2.0"
@@ -15,17 +15,20 @@ PyYAML = "^6.0"
 Jinja2 = "^3.0.3"
 
 [tool.poetry.group.dev.dependencies]
-black = "^21.12-beta.0"
+Flake8-pyproject = "^1.1.0.post0"
 isort = "^5.10.1"
+black = "^22.8.0"
 
 [tool.isort]
 line_length = 120
-skip = ".git"
+
+[tool.flake8]
+max-line-length = 120
+exclude = ".venv"
 
 [tool.black]
 line-length = 120
-target-version = ['py38']
 
 [build-system]
-requires = ["poetry>=0.12"]
-build-backend = "poetry.masonry.api"
+requires = ["poetry-core", "poetry-dynamic-versioning"]
+build-backend = "poetry.core.masonry.api"

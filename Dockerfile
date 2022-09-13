@@ -1,5 +1,5 @@
 FROM python:3.10-slim
-RUN pip install poetry==1.2.0a2
+RUN pip install poetry poetry-dynamic-versioning
 WORKDIR /app
 ADD . .
 RUN poetry build
