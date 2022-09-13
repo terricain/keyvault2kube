@@ -6,7 +6,6 @@ import azure.core.exceptions
 import pylogrus
 from azure.identity import DefaultAzureCredential
 from azure.keyvault.secrets import SecretClient
-from kubernetes import client, config
 
 from keyvault2kube.secret import Secret
 
@@ -19,7 +18,7 @@ class KeyVaultManager(object):
         self.logger = cast(pylogrus.PyLogrus, logging.getLogger("keyvault2kube.keyvault")).withFields(
             {"vault": vault_url}
         )
-        credential = cast("TokenCredential", DefaultAzureCredential())
+        credential = cast(DefaultAzureCredential())
         self._secret_client = SecretClient(vault_url=vault_url, credential=credential)
 
     def get_secrets(self) -> List[Secret]:

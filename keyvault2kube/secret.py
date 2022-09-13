@@ -140,7 +140,7 @@ class Secret(object):
 
         # Deal with "all namespaces"
         try:
-            if os.environ['ALL_NAMESPACES'] or "*" in ns_list:
+            if os.environ["ALL_NAMESPACES"] or "*" in ns_list:
                 ns_list = all_namespaces
         except KeyError:
             pass
