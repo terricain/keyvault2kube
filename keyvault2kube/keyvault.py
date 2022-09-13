@@ -18,7 +18,7 @@ class KeyVaultManager(object):
         self.logger = cast(pylogrus.PyLogrus, logging.getLogger("keyvault2kube.keyvault")).withFields(
             {"vault": vault_url}
         )
-        credential = cast(DefaultAzureCredential())
+        credential = DefaultAzureCredential()
         self._secret_client = SecretClient(vault_url=vault_url, credential=credential)
 
     def get_secrets(self) -> List[Secret]:
