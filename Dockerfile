@@ -6,7 +6,6 @@ RUN poetry build
 
 FROM python:3.10-slim
 COPY --from=0 /app/dist/*.whl /
-ADD healthcheck.sh /
 RUN pip install keyvault2kube-*.*.*-py3-none-any.whl
 
 ENV PYTHONUNBUFFERED=1
