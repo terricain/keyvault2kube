@@ -25,6 +25,12 @@ spec:
           env:
             - name: KEY_VAULT_URLS
               value: https://foo.vault.azure.net/
+          securityContext:
+            readOnlyRootFilesystem: true
+          startupProbe:
+            exec:
+              command: ["test", "-f", "/tmp/done"]
+            periodSeconds: 120
           resources:
             requests:
               cpu: 100m
@@ -32,3 +38,9 @@ spec:
             limits:
               cpu: 1000m
               memory: 64Mi
+          volumeMounts:
+            - mountPath: /tmp
+              name: tmp
+      volumes:
+        - name: tmp
+          emptyDir: {}

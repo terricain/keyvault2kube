@@ -3,6 +3,7 @@ import os
 import signal
 import sys
 import time
+from pathlib import Path
 
 import pylogrus
 
@@ -71,6 +72,7 @@ def main():
 
         try:
             kube.update_secrets(secrets)
+            Path("/tmp/done").touch()
         except Exception as err:
             logger.exception("Failed to update Kubernetes secrets", exc_info=err)
 
